@@ -1,290 +1,479 @@
-// import React, { useState } from 'react';
-// import { Button, Card, CardContent, Grid, TextField, IconButton } from '@mui/material';
-// import { Formik, Form } from 'formik';
-// import { Typography as MuiTypography } from '@mui/material';
-// import * as Yup from 'yup';
-// import { FaTimes } from 'react-icons/fa';
-// import axios from 'axios';
-// // import DataTable from './DataTable';
+// For Single Select Without Pgaination
+// import React, { Fragment, useState } from "react";
+// import {
+//   FormControl,
+//   InputLabel,
+//   Select,
+//   MenuItem,
+//   TextField,
+//   Box,
+//   Button,
+//   Pagination,
+// } from "@mui/material";
 
-// const validationSchema = Yup.object().shape({
-//   data: Yup.string().required('Data is required'),
-//   fullname: Yup.string().required('Full Name is required'),
-// });
+// const SingleSelectWithPagination = () => {
+//   const [selectedValue, setSelectedValue] = useState("");
+//   const [filterText, setFilterText] = useState("");
+//   const [open, setOpen] = useState(false);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [optionsPerPage, setOptionsPerPage] = useState(10);
+//   const dynamicOptions = Array.from({ length: 100 }, (_, i) => `Option ${i + 1}`);
 
-// const typography = () => {
-//   const [datas, setDatas] = useState([]);
+//   const filteredOptions = dynamicOptions.filter((option) =>
+//     option.toLowerCase().includes(filterText.toLowerCase())
+//   );
 
-//   const handleDelete = (index) => {
-//     setDatas((prevdata) => prevdata.filter((_, i) => i !== index));
+//   const totalPages = Math.ceil(filteredOptions.length / optionsPerPage);
+//   const paginatedOptions = filteredOptions.slice(
+//     (currentPage - 1) * optionsPerPage,
+//     currentPage * optionsPerPage
+//   );
+
+//   const handleChange = (event) => {
+//     setSelectedValue(event.target.value);
+//     setFilterText("");
+//     // setOpen(false);
 //   };
 
-//   const handleData = (data) => {
-//     setDatas((prevdata) => [...prevdata, { test: data }]);
+//   const handlePageChange = (event, page) => {
+//     setCurrentPage(page);
 //   };
 
-//   const handleSubmit = async (values, { resetForm }) => {
-//     if (datas.length > 0) {
-//       const allData = {
-//         fullname: values.fullname,
-//         data: datas,
-//       };
-
-//       try {
-//         const response = await axios.post('http://localhost:3001/datas', allData);
-//         console.log('Response from server:', response.data);
-//         setDatas([]);
-//         resetForm();
-//       } catch (error) {
-//         console.error('Error sending data:', error);
-//       }
-//     }
+//   const handleOptionsPerPageChange = (event) => {
+//     setOptionsPerPage(event.target.value);
+//     setCurrentPage(1);
 //   };
 
 //   return (
-//     <Grid container spacing={2}>
-//       <Grid item xs={12}>
-//         <Card className="mb-4">
-//           <CardContent>
-//             <Formik initialValues={{ fullname: '', data: '' }} validationSchema={validationSchema} onSubmit={handleSubmit}>
-//               {({ errors, touched, handleChange, values }) => (
-//                 <Form>
-//                   <MuiTypography variant="h6">Form Control</MuiTypography>
+//     <Fragment>
+//       <InputLabel>Select an Option</InputLabel>
+//       <FormControl fullWidth>
+//         <Select
+//           size="small"
+//           open={open}
+//           onClose={() => setOpen(false)}
+//           onOpen={() => setOpen(true)}
+//           value={selectedValue}
+//           onChange={handleChange}
+//           renderValue={(value) => (value ? value : "Select an Option")}
+//           MenuProps={{
+//             PaperProps: {
+//               style: {
+//                 maxHeight: 300,
+//                 marginTop: 10,
+//               },
+//             },
+//           }}
+//         >
+//           <Box sx={{ backgroundColor: "white", p: 1, position: "sticky", top: 0, zIndex: 1 }}>
+//             <TextField
+//               size="small"
+//               fullWidth
+//               placeholder="Search options..."
+//               value={filterText}
+//               onChange={(e) => {
+//                 setFilterText(e.target.value);
+//                 setCurrentPage(1);
+//               }}
+//               onClick={(e) => e.stopPropagation()}
+//             />
+//           </Box>
 
-//                   <TextField
-//                     fullWidth
-//                     id="fullname"
-//                     name="fullname"
-//                     label="Full Name"
-//                     value={values.fullname}
-//                     onChange={handleChange}
-//                     error={touched.fullname && Boolean(errors.fullname)}
-//                     helperText={touched.fullname && errors.fullname}
-//                     margin="normal"
-//                   />
+//           {paginatedOptions.length > 0 ? (
+//             paginatedOptions.map((option) => (
+//               <MenuItem key={option} value={option}>
+//                 {option}
+//               </MenuItem>
+//             ))
+//           ) : (
+//             <MenuItem disabled>No options found</MenuItem>
+//           )}
 
-//                   <Grid container spacing={2} alignItems="center">
-//                     <Grid item xs={12} sm={9}>
-//                       <TextField
-//                         fullWidth
-//                         id="data"
-//                         name="data"
-//                         label="Data"
-//                         value={values.data}
-//                         onChange={handleChange}
-//                         error={touched.data && Boolean(errors.data)}
-//                         helperText={touched.data && errors.data}
-//                         margin="normal"
-//                       />
-//                     </Grid>
-//                     <Grid item xs={12} sm={3}>
-//                       <Button
-//                         variant="contained"
-//                         color="primary"
-//                         onClick={() => {
-//                           if (values.data) {
-//                             handleData(values.data);
-//                           }
-//                         }}
-//                         style={{ width: '100%', height: '100%' }}
-//                       >
-//                         Add Data
-//                       </Button>
-//                     </Grid>
-//                   </Grid>
+//           {filteredOptions.length > optionsPerPage && (
+//             <Box sx={{ display: "flex", alignItems: 'center', p: 1, position: "sticky", bottom: 0, backgroundColor: "white", zIndex: 1 }}>
+//               <FormControl size="small">
+//                 <Select
+//                   value={optionsPerPage}
+//                   onChange={handleOptionsPerPageChange}
+//                 >
+//                   <MenuItem value={10}>10</MenuItem>
+//                   <MenuItem value={20}>20</MenuItem>
+//                   <MenuItem value={30}>30</MenuItem>
+//                 </Select>
+//               </FormControl>
 
-//                   <Grid container spacing={2} style={{ marginTop: '10px' }}>
-//                     {datas.map((data, index) => (
-//                       <Grid item xs={12} sm={4} key={index}>
-//                         <Card>
-//                           <CardContent style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-//                             <MuiTypography variant="body1">{data.test}</MuiTypography>
-//                             <IconButton onClick={() => handleDelete(index)} style={{ color: 'red' }}>
-//                               <FaTimes />
-//                             </IconButton>
-//                           </CardContent>
-//                         </Card>
-//                       </Grid>
-//                     ))}
-//                   </Grid>
-
-//                   <Button type="submit" variant="contained" color="primary" style={{ marginTop: '24px' }} fullWidth>
-//                     Add Service
-//                   </Button>
-//                 </Form>
-//               )}
-//             </Formik>
-
-//             <div className="custom-select-container">
-//               <select className="custom-select">
-//                 <option value="" disabled selected>{`{'Select an option'}`}</option>
-//                 <option value="option1">Option 1</option>
-//                 <option value="option2">Option 2</option>
-//                 <option value="option3">Option 3</option>
-//               </select>
-//             </div>
-
-//           </CardContent>
-//         </Card>
-//       </Grid>
-//     </Grid>
+//               <Pagination
+//                 count={totalPages}
+//                 page={currentPage}
+//                 onChange={handlePageChange}
+//                 size="small"
+//                 siblingCount={1}
+//                 boundaryCount={1}
+//                 showFirstButton
+//                 showLastButton
+//               />
+//             </Box>
+//           )}
+//         </Select>
+//       </FormControl>
+//     </Fragment>
 //   );
 // };
 
-// export default typography;
+// export default SingleSelectWithPagination;
 
 
-import React, { useState } from 'react';
-import { Button, Card, CardContent, Grid, TextField, IconButton } from '@mui/material';
-import { Formik, Form } from 'formik';
-import { Typography as MuiTypography } from '@mui/material';
-import * as Yup from 'yup';
-import { FaTimes } from 'react-icons/fa';
-import axios from 'axios';
+// For Single Select
+// import React, { Fragment, useState, useEffect } from "react";
+// import {
+//   FormControl,
+//   InputLabel,
+//   Select,
+//   MenuItem,
+//   TextField,
+//   Box,
+//   Pagination,
+// } from "@mui/material";
+// import axios from "axios";
 
-const validationSchema = Yup.object().shape({
-  data: Yup.string().required('Data is required'),
-  fullname: Yup.string().required('Full Name is required'),
-});
+// const SingleSelectWithPagination = () => {
+//   const [selectedValue, setSelectedValue] = useState("");
+//   const [filterText, setFilterText] = useState("");
+//   const [open, setOpen] = useState(false);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [optionsPerPage, setOptionsPerPage] = useState(10);
+//   const [options, setOptions] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   const [totalItems, setTotalItems] = useState(0);
 
-const typography = () => {
-  const [datas, setDatas] = useState([]);
+//   useEffect(() => {
+//     const fetchOptions = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await axios.get('http://localhost:5000/data', {
+//           params: {
+//             page: currentPage,
+//             perPage: optionsPerPage,
+//             search: filterText,
+//           },
+//         });
 
-  const handleDelete = (index) => {
-    setDatas((prevdata) => prevdata.filter((_, i) => i !== index));
-  };
+//         const { data } = response;
+//         setOptions(data[0]?.data);
+//         setTotalItems(data[0]?.total.totalItems);
+//       } catch (err) {
+//         setError("Failed to fetch options");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-  const handleData = (data) => {
-    setDatas((prevdata) => [...prevdata, { test: data }]);
-  };
+//     fetchOptions();
+//   }, [currentPage, optionsPerPage, filterText]);
 
-  const handleSubmit = async (values, { resetForm }) => {
-    if (datas.length > 0) {
-      const allData = {
-        fullname: values.fullname,
-        data: datas,
-      };
+//   const filteredOptions = options.filter((option) =>
+//     option.title.toLowerCase().includes(filterText.toLowerCase())
+//   );
 
+//   const totalPages = Math.ceil(totalItems / optionsPerPage);
+//   const paginatedOptions = filteredOptions.slice(
+//     (currentPage - 1) * optionsPerPage,
+//     currentPage * optionsPerPage
+//   );
+
+//   const handleChange = (event) => {
+//     setSelectedValue(event.target.value);
+//     setFilterText("");
+//   };
+
+//   const handlePageChange = (event, page) => {
+//     setCurrentPage(page);
+//   };
+
+//   const handleOptionsPerPageChange = (event) => {
+//     setOptionsPerPage(event.target.value);
+//     setCurrentPage(1);
+//   };
+
+//   return (
+//     <Fragment>
+//       <InputLabel>Select an Option</InputLabel>
+//       <FormControl fullWidth>
+//         <Select
+//           size="small"
+//           open={open}
+//           onClose={() => setOpen(false)}
+//           onOpen={() => setOpen(true)}
+//           value={selectedValue}
+//           onChange={handleChange}
+//           renderValue={(value) => (value ? value : "Select an Option")}
+//           MenuProps={{
+//             PaperProps: {
+//               style: {
+//                 maxHeight: 300,
+//                 marginTop: 10,
+//               },
+//             },
+//           }}
+//         >
+//           <Box sx={{ backgroundColor: "white", p: 1, position: "sticky", top: 0, zIndex: 1 }}>
+//             <TextField
+//               size="small"
+//               fullWidth
+//               placeholder="Search options..."
+//               value={filterText}
+//               onChange={(e) => {
+//                 setFilterText(e.target.value);
+//                 setCurrentPage(1);
+//               }}
+//               onClick={(e) => e.stopPropagation()}
+//             />
+//           </Box>
+
+//           {paginatedOptions.length > 0 ? (
+//             paginatedOptions.map((option) => (
+//               <MenuItem key={option.value} value={option.title}>
+//                 {option.title}
+//               </MenuItem>
+//             ))
+//           ) : loading ? (
+//             <MenuItem disabled>Loading...</MenuItem>
+//           ) : error ? (
+//             <MenuItem disabled>{error}</MenuItem>
+//           ) : (
+//             <MenuItem disabled>No options found</MenuItem>
+//           )}
+
+//           {totalPages > 1 && (
+//             <Box sx={{ display: "flex", alignItems: "center", p: 1, position: "sticky", bottom: 0, backgroundColor: "white", zIndex: 1 }}>
+//               <FormControl size="small">
+//                 <Select
+//                   value={optionsPerPage}
+//                   onChange={handleOptionsPerPageChange}
+//                 >
+//                   <MenuItem value={10}>10</MenuItem>
+//                   <MenuItem value={20}>20</MenuItem>
+//                   <MenuItem value={30}>30</MenuItem>
+//                 </Select>
+//               </FormControl>
+
+//               <Pagination
+//                 count={totalPages}
+//                 page={currentPage}
+//                 onChange={handlePageChange}
+//                 size="small"
+//                 siblingCount={1}
+//                 boundaryCount={1}
+//                 showFirstButton
+//                 showLastButton
+//               />
+//             </Box>
+//           )}
+//         </Select>
+//       </FormControl>
+//     </Fragment>
+//   );
+// };
+
+// export default SingleSelectWithPagination;
+
+// For Multiple Select
+import React, { Fragment, useState, useEffect } from "react";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Box,
+  Pagination,
+  Checkbox,
+  ListItemText,
+  Chip,
+} from "@mui/material";
+import axios from "axios";
+
+const MultiSelectWithPagination = () => {
+  const [selectedValues, setSelectedValues] = useState([]);
+  const [filterText, setFilterText] = useState("");
+  const [open, setOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [optionsPerPage, setOptionsPerPage] = useState(10);
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalItems, setTotalItems] = useState(0);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      setLoading(true);
       try {
-        const response = await axios.post('http://localhost:3001/datas', allData);
-        console.log('Response from server:', response.data);
-        setDatas([]);
-        resetForm();
-      } catch (error) {
-        console.error('Error sending data:', error);
+        const response = await axios.get("http://localhost:5000/data", {
+          params: {
+            page: currentPage,
+            perPage: optionsPerPage,
+            search: filterText,
+          },
+        });
+
+        const { data } = response;
+        setOptions(data[0]?.data);
+        setTotalItems(data[0]?.total.totalItems);
+      } catch (err) {
+        setError("Failed to fetch options");
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchOptions();
+  }, [currentPage, optionsPerPage, filterText]);
+
+  const filteredOptions = options.filter((option) =>
+    option.title.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(totalItems / optionsPerPage);
+  const paginatedOptions = filteredOptions.slice(
+    (currentPage - 1) * optionsPerPage,
+    currentPage * optionsPerPage
+  );
+
+  const handleChange = (event) => {
+    const value = event.target.value;
+    setSelectedValues(value);
   };
 
-  // Inline styles for the custom select
-  const customSelectContainerStyle = {
-    position: 'relative',
-    width: '100%',
-    maxWidth: '300px',
-    marginTop: '20px',
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
   };
 
-  const customSelectStyle = {
-    display: 'block',
-    width: '100%',
-    padding: '10px 40px 10px 10px', // 40px to accommodate the arrow icon
-    fontSize: '16px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    backgroundColor: '#fff',
-    color: '#333',
-    appearance: 'none', // Remove default arrow
+  const handleOptionsPerPageChange = (event) => {
+    setOptionsPerPage(event.target.value);
+    setCurrentPage(1);
   };
 
-  const arrowIconStyle = {
-    position: 'absolute',
-    top: '50%',
-    right: '10px',
-    transform: 'translateY(-50%)',
-    pointerEvents: 'none',
+  const handleChipDelete = (chipToDelete) => {
+    setSelectedValues((prevSelectedValues) =>
+      prevSelectedValues.filter((item) => item.value !== chipToDelete.value)
+    );
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Card className="mb-4">
-          <CardContent>
-            <Formik
-              initialValues={{ fullname: '', data: '' }}
-              validationSchema={validationSchema}
-              onSubmit={handleSubmit}
-            >
-              {({ errors, touched, handleChange, values }) => (
-                <Form>
-                  <MuiTypography variant="h6">Form Control</MuiTypography>
-
-                  <TextField
-                    fullWidth
-                    id="fullname"
-                    name="fullname"
-                    label="Full Name"
-                    value={values.fullname}
-                    onChange={handleChange}
-                    error={touched.fullname && Boolean(errors.fullname)}
-                    helperText={touched.fullname && errors.fullname}
-                    margin="normal"
+    <Fragment>
+      <InputLabel>Select Options</InputLabel>
+      <FormControl fullWidth>
+        <Select
+          multiple
+          size="small"
+          open={open}
+          onClose={() => setOpen(false)}
+          onOpen={() => setOpen(true)}
+          value={selectedValues}
+          onChange={handleChange}
+          renderValue={(selected) => (
+            <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+              {selected.map((value) => {
+                const option = options.find((opt) => opt.value === value);
+                return (
+                  <Chip
+                    key={value}
+                    label={option?.title}
+                    onDelete={() => handleChipDelete(option)}
+                    sx={{ margin: 0.5 }}
                   />
+                );
+              })}
+            </Box>
+          )}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 300,
+                marginTop: 10,
+              },
+            },
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: "white",
+              p: 1,
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+            }}
+          >
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="Search options..."
+              value={filterText}
+              onChange={(e) => {
+                setFilterText(e.target.value);
+                setCurrentPage(1);
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Box>
 
-                  {/* Custom Select Box with Inline Styles */}
-                  <div style={customSelectContainerStyle}>
-                    <select style={customSelectStyle}>
-                      <option value="" disabled selected>
-                        Select an option
-                      </option>
-                      <option value="option1">Option 1</option>
-                      <option value="option2">Option 2</option>
-                      <option value="option3">Option 3</option>
-                    </select>
-                    {/* Arrow icon for the select box */}
-                    <div style={arrowIconStyle}>▼</div>
-                  </div>
+          {paginatedOptions.length > 0 ? (
+            paginatedOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Checkbox
+                  checked={selectedValues.indexOf(option.value) > -1}
+                />
+                <ListItemText primary={option.title} />
+              </MenuItem>
+            ))
+          ) : loading ? (
+            <MenuItem disabled>Loading...</MenuItem>
+          ) : error ? (
+            <MenuItem disabled>{error}</MenuItem>
+          ) : (
+            <MenuItem disabled>No options found</MenuItem>
+          )}
 
-                  <Grid container spacing={2} style={{ marginTop: '10px' }}>
-                    {datas.map((data, index) => (
-                      <Grid item xs={12} sm={4} key={index}>
-                        <Card>
-                          <CardContent
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <MuiTypography variant="body1">{data.test}</MuiTypography>
-                            <IconButton
-                              onClick={() => handleDelete(index)}
-                              style={{ color: 'red' }}
-                            >
-                              <FaTimes />
-                            </IconButton>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
+          {totalPages > 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                p: 1,
+                position: "sticky",
+                bottom: 0,
+                backgroundColor: "white",
+                zIndex: 1,
+              }}
+            >
+              <FormControl size="small">
+                <Select value={optionsPerPage} onChange={handleOptionsPerPageChange}>
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={20}>20</MenuItem>
+                  <MenuItem value={30}>30</MenuItem>
+                </Select>
+              </FormControl>
 
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    style={{ marginTop: '24px' }}
-                    fullWidth
-                  >
-                    Add Service
-                  </Button>
-                </Form>
-              )}
-            </Formik>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                size="small"
+                siblingCount={1}
+                boundaryCount={1}
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          )}
+        </Select>
+      </FormControl>
+    </Fragment>
   );
 };
 
-export default typography;
+export default MultiSelectWithPagination;
+
+
+// json-server --watch db.json --port 5000
